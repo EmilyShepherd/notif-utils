@@ -1,19 +1,53 @@
 #!/bin/sh
 
 mkdir -p /tmp/notif
-name=$1
-shift
+
+case $1 in
+    -c)
+        close=yes
+        shift
+        ;;
+    -b)
+        block=yes
+        shift
+        ;;
+esac
+
+if test -z $1
+then
+    exit 1
+else
+    name=$1
+    shift
+fi
+
+id="0"
 
 if test -e /tmp/notif/$name
 then
-    replace=$(cat /tmp/notif/$name)
+    id=$(cat /tmp/notif/$name)
 
-    if [[ $replace -eq $replace ]]
+    if ! [[ $id -eq $id ]] || test -z $id
     then
-        replace="-r $replace"
-    else
-        replace=
+        id="0"
     fi
 fi
 
-dunstify -p $replace "$@" > /tmp/notif/$name
+if [[ $block == "yes" ]]
+then
+    touch /tmp/notif/$name.block
+
+    id=$(dunstify -p -r $id "$@")
+    echo $id > /tmp/notif/$name
+
+    while test -e /tmp/notif/$name.block
+    do
+        dunstify -b -r $id "$@"
+    done
+elif [[ $close == "yes" ]]
+then
+    rm /tmp/notif/$name.block
+    dunstify -C $id " "
+else
+    dunstify -p -r $id "$@" > /tmp/notif/$name
+fi
