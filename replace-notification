@@ -1,0 +1,13 @@
+#!/bin/sh
+
+mkdir -p /tmp/notif
+name=$1
+shift
+
+if test -e /tmp/notif/$name
+then
+    replace="-r $(cat /tmp/notif/$name)"
+fi
+
+dunstify -p $replace $@ > /tmp/notif/$name
+echo dunstify -p $replace $@
