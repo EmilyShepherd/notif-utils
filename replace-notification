@@ -6,8 +6,14 @@ shift
 
 if test -e /tmp/notif/$name
 then
-    replace="-r $(cat /tmp/notif/$name)"
+    replace=$(cat /tmp/notif/$name)
+
+    if [[ $replace -eq $replace ]]
+    then
+        replace="-r $replace"
+    else
+        replace=
+    fi
 fi
 
 dunstify -p $replace $@ > /tmp/notif/$name
-echo dunstify -p $replace $@
